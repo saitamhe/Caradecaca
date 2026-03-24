@@ -275,6 +275,88 @@ body {
 .ranking-name { font-weight: 600; color: var(--gold); }
 .ranking-name.loser { color: var(--red); }
 
+/* ===== PWA INSTALL BANNER ===== */
+.pwa-install-banner {
+  position: fixed;
+  bottom: -140px;
+  left: 0; right: 0;
+  background: linear-gradient(135deg, #112a18 0%, #0a1f10 100%);
+  border-top: 2px solid #f0c040;
+  padding: 14px 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  z-index: 999;
+  transition: bottom 0.45s cubic-bezier(0.34, 1.4, 0.64, 1);
+  box-shadow: 0 -6px 28px rgba(0,0,0,0.6);
+}
+.pwa-install-banner.visible { bottom: 0; }
+.pwa-banner-icon {
+  font-size: 2.6rem;
+  flex-shrink: 0;
+  animation: banner-bounce 2s infinite;
+}
+@keyframes banner-bounce {
+  0%,100% { transform: translateY(0); }
+  50%      { transform: translateY(-5px); }
+}
+.pwa-banner-text {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+.pwa-banner-text strong {
+  color: #f0c040;
+  font-size: 0.98rem;
+  font-weight: 700;
+}
+.pwa-banner-text > span {
+  color: #aaa;
+  font-size: 0.78rem;
+  line-height: 1.3;
+}
+.pwa-ios-tip {
+  color: #7dd17d !important;
+  font-size: 0.76rem !important;
+  margin-top: 2px;
+}
+.pwa-banner-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-shrink: 0;
+}
+.btn-pwa-install {
+  background: linear-gradient(135deg, #f0c040, #e0a820);
+  color: #1a1a1a;
+  border: none;
+  border-radius: 22px;
+  padding: 9px 18px;
+  font-weight: 700;
+  font-size: 0.88rem;
+  cursor: pointer;
+  transition: transform 0.12s, box-shadow 0.12s;
+  white-space: nowrap;
+  box-shadow: 0 2px 10px rgba(240,192,64,0.4);
+}
+.btn-pwa-install:hover  { box-shadow: 0 4px 16px rgba(240,192,64,0.6); }
+.btn-pwa-install:active { transform: scale(0.94); }
+.btn-pwa-dismiss {
+  background: transparent;
+  border: 1px solid rgba(255,255,255,0.2);
+  border-radius: 50%;
+  color: #888;
+  font-size: 1rem;
+  width: 32px; height: 32px;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: background 0.15s, color 0.15s;
+  flex-shrink: 0;
+}
+.btn-pwa-dismiss:hover { background: rgba(255,255,255,0.1); color: #ccc; }
+
 /* ===== REACTION BAR ===== */
 .reaction-bar {
   position: fixed; bottom: 0; left: 0; right: 0;

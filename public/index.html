@@ -69,8 +69,27 @@
     </div>
   </div>
 
+  <!-- PWA Install Banner -->
+  <div id="pwa-install-banner" class="pwa-install-banner" role="dialog" aria-label="Instalar aplicación">
+    <div class="pwa-banner-icon">💩</div>
+    <div class="pwa-banner-text">
+      <strong>¡Instala Cara de Caca!</strong>
+      <span>Acceso directo desde tu pantalla de inicio</span>
+      <span id="pwa-ios-tip" class="pwa-ios-tip hidden">
+        Toca <strong>Compartir</strong> luego <strong>"Añadir a inicio"</strong>
+      </span>
+    </div>
+    <div class="pwa-banner-actions">
+      <div id="pwa-install-btn-wrap">
+        <button id="btn-pwa-install" class="btn-pwa-install">📲 Instalar</button>
+      </div>
+      <button id="btn-pwa-dismiss" class="btn-pwa-dismiss" aria-label="Cerrar">✕</button>
+    </div>
+  </div>
+
   <script src="/js/analytics.js"></script>
   <script src="/js/index.js"></script>
+  <script src="/js/pwa.js"></script>
   <script>
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('/sw.js').catch(() => {});
