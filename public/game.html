@@ -111,26 +111,27 @@
   <!-- FLOATING REACTIONS -->
   <div id="floating-reactions"></div>
 
-  <!-- HOME BUTTON (fixed top-right) -->
-  <button class="btn-home-fixed" id="btn-home" title="Volver al inicio 🏠">🏠</button>
-
-  <!-- EMOTE PICKER DROPDOWN (fixed top) -->
-  <div class="emote-picker hidden" id="emote-picker">
-    <button class="emote-btn" data-type="laugh" title="😂">😂</button>
-    <button class="emote-btn" data-type="skull" title="💀">💀</button>
-    <button class="emote-btn" data-type="fire" title="🔥">🔥</button>
-    <button class="emote-btn" data-type="kiss" title="😘">😘</button>
-    <button class="emote-btn" data-type="ok" title="👍">👍</button>
-    <button class="emote-btn" data-type="no" title="👎">👎</button>
-    <button class="emote-btn" data-type="shock" title="😱">😱</button>
-    <button class="emote-btn" data-type="clap" title="👏">👏</button>
+  <!-- TOP-RIGHT CONTROLS -->
+  <div class="top-right-controls" id="top-right-controls">
+    <button class="btn-top-ctrl btn-emotes-toggle" id="btn-emotes-toggle" title="Emoticonos">😝</button>
+    <button class="btn-top-ctrl btn-home-fixed" id="btn-home" title="Volver al inicio">🏠</button>
+    <!-- Emote picker dropdown (se abre hacia abajo) -->
+    <div class="emote-picker hidden" id="emote-picker">
+      <button class="emote-btn" data-type="laugh">😂</button>
+      <button class="emote-btn" data-type="skull">💀</button>
+      <button class="emote-btn" data-type="fire">🔥</button>
+      <button class="emote-btn" data-type="kiss">😘</button>
+      <button class="emote-btn" data-type="ok">👍</button>
+      <button class="emote-btn" data-type="no">👎</button>
+      <button class="emote-btn" data-type="shock">😱</button>
+      <button class="emote-btn" data-type="clap">👏</button>
+    </div>
   </div>
 
-  <!-- REACTION BAR -->
+  <!-- REACTION BAR (solo reacciones rápidas) -->
   <div class="reaction-bar" id="reaction-bar">
     <button class="btn-reaction" data-type="poop" title="Enviar 💩">💩</button>
     <button class="btn-reaction" data-type="buzz" title="Zumbido 📳">📳</button>
-    <button class="btn-reaction btn-emotes-toggle" id="btn-emotes-toggle" title="Emoticonos 😝">😝</button>
     <button class="btn-reaction" data-type="gas" title="Gases 💨">💨</button>
   </div>
 

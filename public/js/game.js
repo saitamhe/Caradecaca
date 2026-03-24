@@ -417,7 +417,7 @@ function sendReaction(type) {
   showFloatingReaction(REACTION_EMOJIS[type] || '💩', 'Tú');
 }
 
-// Home button (fixed top-right)
+// Home button
 document.getElementById('btn-home').addEventListener('click', () => {
   if (confirm('¿Seguro que quieres salir? Perderás la partida.')) {
     Analytics.trackLeaveGame(publicState?.status || 'playing');
@@ -427,25 +427,15 @@ document.getElementById('btn-home').addEventListener('click', () => {
   }
 });
 
-// Reaction bar click delegation
-document.getElementById('reaction-bar').addEventListener('click', (e) => {
-  // Data-type buttons (reaction send)
-  const reactionBtn = e.target.closest('[data-type]');
-  if (reactionBtn) {
-    const type = reactionBtn.dataset.type;
-    sendReaction(type);
-    document.getElementById('emote-picker').classList.add('hidden');
-    return;
-  }
-  // Emote toggle
-  if (e.target.closest('#btn-emotes-toggle')) {
-    document.getElementById('emote-picker').classList.toggle('hidden');
-    return;
-  }
+// Emote toggle
+document.getElementById('btn-emotes-toggle').addEventListener('click', (e) => {
+  e.stopPropagation();
+  document.getElementById('emote-picker').classList.toggle('hidden');
 });
 
 // Emote picker: send reaction and close
 document.getElementById('emote-picker').addEventListener('click', (e) => {
+  e.stopPropagation();
   const btn = e.target.closest('[data-type]');
   if (btn) {
     sendReaction(btn.dataset.type);
@@ -453,9 +443,17 @@ document.getElementById('emote-picker').addEventListener('click', (e) => {
   }
 });
 
+// Reaction bar click delegation
+document.getElementById('reaction-bar').addEventListener('click', (e) => {
+  const reactionBtn = e.target.closest('[data-type]');
+  if (reactionBtn) {
+    sendReaction(reactionBtn.dataset.type);
+  }
+});
+
 // Close emote picker on outside click
 document.addEventListener('click', (e) => {
-  if (!e.target.closest('#emote-picker') && !e.target.closest('#btn-emotes-toggle')) {
+  if (!e.target.closest('#top-right-controls')) {
     document.getElementById('emote-picker').classList.add('hidden');
   }
 });
