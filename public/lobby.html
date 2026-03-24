@@ -9,6 +9,14 @@
   <meta name="theme-color" content="#1a6b3a">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <link rel="apple-touch-icon" href="/icons/icon-192.svg">
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-P12JZY6FH1"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-P12JZY6FH1');
+  </script>
 </head>
 <body class="page-lobby">
   <div class="lobby-container">
@@ -40,6 +48,7 @@
   </div>
 
   <script src="/socket.io/socket.io.js"></script>
+  <script src="/js/analytics.js"></script>
   <script src="/js/lobby.js"></script>
 </body>
 </html>

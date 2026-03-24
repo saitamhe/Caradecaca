@@ -83,6 +83,7 @@ socket.on('player-joined', (player) => {
 socket.on('bot-added', (player) => {
   players.push(player);
   renderPlayers(players);
+  Analytics.trackBotAdded(players.filter(p => p.isBot).length);
 });
 
 socket.on('player-disconnected', ({ playerId }) => {
@@ -95,6 +96,9 @@ socket.on('game-started', (data) => {
     sessionStorage.setItem('initialHand', JSON.stringify(data.hand));
     sessionStorage.setItem('initialFaceDown', JSON.stringify(data.faceDown));
   }
+  const bots = players.filter(p => p.isBot).length;
+  Analytics.trackGameStarted(players.length, bots);
+  sessionStorage.setItem('gameStartTime', Date.now());
   window.location.href = '/game.html';
 });
 
@@ -120,6 +124,7 @@ btnBack.addEventListener('click', () => {
 
 btnCopyLink.addEventListener('click', () => {
   const url = `${window.location.origin}/?room=${myRoomId}`;
+  Analytics.trackLinkCopied();
   navigator.clipboard.writeText(url).then(() => {
     btnCopyLink.textContent = '✅ Copiado!';
     setTimeout(() => btnCopyLink.textContent = '📋 Copiar enlace', 2000);

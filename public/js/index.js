@@ -46,6 +46,7 @@ btnCreate.addEventListener('click', () => {
   if (!name) return showError('Escribe tu nombre');
   sessionStorage.setItem('playerName', name);
   sessionStorage.setItem('isCreating', '1');
+  Analytics.trackRoomCreated();
   window.location.href = '/lobby.html';
 });
 
@@ -60,6 +61,7 @@ function doJoin() {
   sessionStorage.setItem('playerName', name);
   sessionStorage.setItem('joiningRoom', room);
   sessionStorage.removeItem('isCreating');
+  Analytics.trackRoomJoined();
   window.location.href = '/lobby.html';
 }
 

@@ -323,6 +323,7 @@ function tryCompleteSwap() {
 }
 
 btnConfirmSwap.addEventListener('click', () => {
+  Analytics.trackSwapConfirmed(swapPending.length);
   socket.emit('confirm-swap');
   swapOverlay.classList.add('hidden');
   gameTable.classList.remove('hidden');
@@ -334,16 +335,22 @@ function doPlayCards() {
   if (selectedCards.length === 0) return;
   const phase = getMyPhase();
   const source = phase === 'faceUp' ? 'faceUp' : 'hand';
+  const allCards = [...myHand, ...myFaceUp];
+  const first = allCards.find(c => c.id === selectedCards[0]);
+  if (first) Analytics.trackCardsPlayed(first.value, selectedCards.length, source);
   socket.emit('play-cards', { cardIds: selectedCards, source });
   selectedCards = [];
 }
 
 function doTakePile() {
+  const reason = publicState?.jokerPending ? 'joker' : 'no_cards';
+  Analytics.trackAteCaca(reason);
   socket.emit('take-pile');
 }
 
 function doFlipFaceDown(index) {
   socket.emit('flip-facedown', { index });
+  Analytics.trackCardsPlayed(-1, 1, 'faceDown'); // -1 = unknown value (hidden)
 }
 
 const btnLeave = document.getElementById('btn-leave');
@@ -352,6 +359,7 @@ btnPlay.addEventListener('click', doPlayCards);
 btnTake.addEventListener('click', doTakePile);
 btnLeave.addEventListener('click', () => {
   if (confirm('¿Seguro que quieres salir? Perderás la partida.')) {
+    Analytics.trackLeaveGame(publicState?.status || 'playing');
     socket.emit('leave-game');
     sessionStorage.removeItem('roomId');
     window.location.href = '/';
@@ -456,10 +464,12 @@ socket.on('player-ate', ({ playerId, playerName: name }) => {
 socket.on('facedown-flipped', ({ playerId, card, success }) => {
   const p = publicState?.players.find(x => x.id === playerId);
   const name = p?.name || '?';
+  if ((playerId === socket.id || playerId === myId)) Analytics.trackFacedownFlip(success);
   if (success) {
     addLog(`${name} volteó ${VALUE_LABEL[card.value]}${card.suit !== 'joker' ? '' : ''}`);
   } else {
     addLog(`💩 ${name} no pudo con la boca abajo!`, 'poop');
+    if (playerId === socket.id || playerId === myId) Analytics.trackAteCaca('facedown_fail');
     // Update local facedown if it was me
     if ((playerId === socket.id || playerId === myId) && myFaceDown.length > 0) {
       myFaceDown = myFaceDown.filter((_, i) => i !== 0);
@@ -470,6 +480,7 @@ socket.on('facedown-flipped', ({ playerId, card, success }) => {
 socket.on('pile-burned', ({ by }) => {
   const p = publicState?.players.find(x => x.id === by);
   addLog(`🔥 ¡${p?.name || '?'} quemó la caca!`, 'important');
+  if (by === socket.id || by === myId) Analytics.trackPileBurned('ten_or_four');
 });
 
 socket.on('player-left', ({ name }) => {
@@ -486,6 +497,10 @@ socket.on('player-disconnected', ({ name }) => {
 
 socket.on('game-over', ({ loserId, loserName, rankings }) => {
   gameOverData = { loserId, loserName, rankings };
+  const isLoser = loserId === socket.id || loserId === myId;
+  const startTime = parseInt(sessionStorage.getItem('gameStartTime') || Date.now());
+  const durationSec = Math.round((Date.now() - startTime) / 1000);
+  Analytics.trackGameOver(isLoser, rankings.length, durationSec);
   showGameOver(loserId, loserName, rankings);
 });
 
@@ -519,6 +534,7 @@ function showGameOver(loserId, loserName, rankings) {
   });
 
   document.getElementById('btn-share').onclick = async () => {
+    Analytics.trackShareClicked(isLoser ? 'lost' : 'won');
     const canvas = ShareModule.generateShareImage({
       loserName,
       myName: playerName,
@@ -528,6 +544,7 @@ function showGameOver(loserId, loserName, rankings) {
     });
     try {
       const result = await ShareModule.shareToInstagram(canvas);
+      Analytics.trackShareCompleted(result);
       if (result === 'downloaded') {
         addLog('Imagen descargada. Sube la foto a Instagram Stories!');
       }
