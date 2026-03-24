@@ -5,6 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Sala de espera – Cara de Caca 💩</title>
   <link rel="stylesheet" href="/css/style.css">
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#1a6b3a">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <link rel="apple-touch-icon" href="/icons/icon-192.svg">
 </head>
 <body class="page-lobby">
   <div class="lobby-container">
@@ -24,7 +28,12 @@
 
     <div class="lobby-actions">
       <button class="btn btn-primary btn-lg hidden" id="btn-start">🚀 ¡Iniciar partida!</button>
+      <button class="btn btn-secondary hidden" id="btn-add-bot">🤖 Agregar Bot</button>
       <p class="waiting-msg" id="waiting-msg">Esperando al anfitrión...</p>
+    </div>
+
+    <div class="lobby-footer">
+      <button class="btn btn-ghost btn-sm" id="btn-back">← Salir de la sala</button>
     </div>
 
     <div id="error-msg" class="error-msg hidden"></div>

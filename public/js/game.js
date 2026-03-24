@@ -346,8 +346,17 @@ function doFlipFaceDown(index) {
   socket.emit('flip-facedown', { index });
 }
 
+const btnLeave = document.getElementById('btn-leave');
+
 btnPlay.addEventListener('click', doPlayCards);
 btnTake.addEventListener('click', doTakePile);
+btnLeave.addEventListener('click', () => {
+  if (confirm('¿Seguro que quieres salir? Perderás la partida.')) {
+    socket.emit('leave-game');
+    sessionStorage.removeItem('roomId');
+    window.location.href = '/';
+  }
+});
 
 // ===== SOCKET EVENTS =====
 
@@ -461,6 +470,10 @@ socket.on('facedown-flipped', ({ playerId, card, success }) => {
 socket.on('pile-burned', ({ by }) => {
   const p = publicState?.players.find(x => x.id === by);
   addLog(`🔥 ¡${p?.name || '?'} quemó la caca!`, 'important');
+});
+
+socket.on('player-left', ({ name }) => {
+  addLog(`🚪 ${name || '?'} abandonó la partida`, 'important');
 });
 
 socket.on('player-reconnected', ({ name }) => {

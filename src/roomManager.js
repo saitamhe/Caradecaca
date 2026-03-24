@@ -139,11 +139,9 @@ function confirmSwap(roomId, socketId) {
   if (!player) return { error: 'Jugador no encontrado' };
   player.swapConfirmed = true;
 
-  // Check if all confirmed
+  // Check if all human players confirmed (bots auto-confirm on deal)
   const allConfirmed = state.players.every(p => p.swapConfirmed);
   if (allConfirmed) {
-    state.status = 'playing';
-    state.currentPlayerIdx = findStartingPlayer(state.players);
     state.lastActivity = Date.now();
     return { state, started: true };
   }

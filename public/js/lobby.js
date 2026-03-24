@@ -8,6 +8,8 @@ const roomCodeEl = document.getElementById('room-code');
 const playerCountEl = document.getElementById('player-count');
 const playerListEl = document.getElementById('player-list');
 const btnStart = document.getElementById('btn-start');
+const btnAddBot = document.getElementById('btn-add-bot');
+const btnBack = document.getElementById('btn-back');
 const waitingMsg = document.getElementById('waiting-msg');
 const btnCopyLink = document.getElementById('btn-copy-link');
 const errorMsg = document.getElementById('error-msg');
@@ -16,25 +18,26 @@ let myRoomId = null;
 let isHost = false;
 let players = [];
 
-if (!playerName) {
-  window.location.href = '/';
-}
+if (!playerName) window.location.href = '/';
 
 function showError(msg) {
   errorMsg.textContent = msg;
   errorMsg.classList.remove('hidden');
+  setTimeout(() => errorMsg.classList.add('hidden'), 4000);
 }
 
 function renderPlayers(list) {
   playerListEl.innerHTML = '';
   playerCountEl.textContent = list.length;
-  list.forEach(p => {
+  list.forEach((p, idx) => {
     const li = document.createElement('li');
-    li.className = 'player-item' + (p.id === socket.id || p.isHost ? ' host' : '') + (p.connected === false ? ' disconnected' : '');
+    const isSelf = p.id === socket.id;
+    const isHostPlayer = idx === 0;
+    li.className = 'player-item' + (isHostPlayer ? ' host' : '') + (p.connected === false ? ' disconnected' : '');
     const initials = p.name.slice(0, 2).toUpperCase();
     li.innerHTML = `
-      <div class="player-avatar">${initials}</div>
-      <span>${p.name}${p.id === socket.id ? ' (tú)' : ''}</span>
+      <div class="player-avatar">${p.isBot ? '🤖' : initials}</div>
+      <span>${p.name}${isSelf ? ' (tú)' : ''}${p.isBot ? ' <em style="color:#aaa;font-size:0.8em">bot</em>' : ''}</span>
     `;
     playerListEl.appendChild(li);
   });
@@ -58,6 +61,7 @@ socket.on('room-created', ({ roomId, players: list }) => {
   players = list;
   renderPlayers(list.map(p => ({ ...p, isHost: true })));
   btnStart.classList.remove('hidden');
+  btnAddBot.classList.remove('hidden');
   waitingMsg.classList.add('hidden');
 });
 
@@ -76,13 +80,17 @@ socket.on('player-joined', (player) => {
   renderPlayers(players);
 });
 
-socket.on('player-disconnected', ({ playerId, name }) => {
+socket.on('bot-added', (player) => {
+  players.push(player);
+  renderPlayers(players);
+});
+
+socket.on('player-disconnected', ({ playerId }) => {
   players = players.map(p => p.id === playerId ? { ...p, connected: false } : p);
   renderPlayers(players);
 });
 
 socket.on('game-started', (data) => {
-  // Store initial card data before navigating (new socket will need to rejoin)
   if (data && data.hand) {
     sessionStorage.setItem('initialHand', JSON.stringify(data.hand));
     sessionStorage.setItem('initialFaceDown', JSON.stringify(data.faceDown));
@@ -93,8 +101,21 @@ socket.on('game-started', (data) => {
 socket.on('error', ({ message }) => showError(message));
 
 btnStart.addEventListener('click', () => {
-  if (players.length < 2) return showError('Se necesitan al menos 2 jugadores');
+  if (players.filter(p => !p.isBot).length < 1) return showError('Necesitas al menos 1 jugador humano');
+  if (players.length < 2) return showError('Se necesitan al menos 2 jugadores (agrega un bot o espera)');
   socket.emit('start-game');
+});
+
+btnAddBot.addEventListener('click', () => {
+  if (players.length >= 9) return showError('Sala llena (máximo 9 jugadores)');
+  socket.emit('add-bot');
+});
+
+btnBack.addEventListener('click', () => {
+  sessionStorage.removeItem('roomId');
+  sessionStorage.removeItem('isCreating');
+  sessionStorage.removeItem('joiningRoom');
+  window.location.href = '/';
 });
 
 btnCopyLink.addEventListener('click', () => {
