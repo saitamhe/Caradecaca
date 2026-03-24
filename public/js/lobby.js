@@ -4,19 +4,28 @@ const playerName = sessionStorage.getItem('playerName');
 const isCreating = sessionStorage.getItem('isCreating');
 const joiningRoom = sessionStorage.getItem('joiningRoom');
 
-const roomCodeEl = document.getElementById('room-code');
-const playerCountEl = document.getElementById('player-count');
-const playerListEl = document.getElementById('player-list');
-const btnStart = document.getElementById('btn-start');
-const btnAddBot = document.getElementById('btn-add-bot');
-const btnBack = document.getElementById('btn-back');
-const waitingMsg = document.getElementById('waiting-msg');
-const btnCopyLink = document.getElementById('btn-copy-link');
-const errorMsg = document.getElementById('error-msg');
+const roomCodeEl     = document.getElementById('room-code');
+const playerCountEl  = document.getElementById('player-count');
+const playerListEl   = document.getElementById('player-list');
+const btnStart       = document.getElementById('btn-start');
+const btnExpress     = document.getElementById('btn-express');
+const btnAddBot      = document.getElementById('btn-add-bot');
+const btnBack        = document.getElementById('btn-back');
+const waitingMsg     = document.getElementById('waiting-msg');
+const btnCopyLink    = document.getElementById('btn-copy-link');
+const errorMsg       = document.getElementById('error-msg');
+const inviteSection  = document.getElementById('invite-section');
+const btnInvite      = document.getElementById('btn-invite');
+const inviteBackdrop = document.getElementById('invite-backdrop');
+const btnShareInvite = document.getElementById('btn-share-invite');
+const btnCloseInvite = document.getElementById('btn-close-invite');
+const inviteLoading  = document.getElementById('invite-loading');
+const invitePreviewCanvas = document.getElementById('invite-preview-canvas');
 
 let myRoomId = null;
 let isHost = false;
 let players = [];
+let inviteCanvas = null; // generated full-res canvas
 
 if (!playerName) window.location.href = '/';
 
@@ -61,7 +70,9 @@ socket.on('room-created', ({ roomId, players: list }) => {
   players = list;
   renderPlayers(list.map(p => ({ ...p, isHost: true })));
   btnStart.classList.remove('hidden');
+  btnExpress.classList.remove('hidden');
   btnAddBot.classList.remove('hidden');
+  inviteSection.classList.remove('hidden');
   waitingMsg.classList.add('hidden');
 });
 
@@ -104,10 +115,18 @@ socket.on('game-started', (data) => {
 
 socket.on('error', ({ message }) => showError(message));
 
+// ── Button handlers ──────────────────────────────────────────────────────────
+
 btnStart.addEventListener('click', () => {
   if (players.filter(p => !p.isBot).length < 1) return showError('Necesitas al menos 1 jugador humano');
   if (players.length < 2) return showError('Se necesitan al menos 2 jugadores (agrega un bot o espera)');
   socket.emit('start-game');
+});
+
+btnExpress.addEventListener('click', () => {
+  if (players.filter(p => !p.isBot).length < 1) return showError('Necesitas al menos 1 jugador humano');
+  if (players.length < 2) return showError('Se necesitan al menos 2 jugadores (agrega un bot o espera)');
+  socket.emit('start-game', { express: true });
 });
 
 btnAddBot.addEventListener('click', () => {
@@ -131,4 +150,54 @@ btnCopyLink.addEventListener('click', () => {
   }).catch(() => {
     prompt('Copia este enlace:', url);
   });
+});
+
+// ── Instagram invite flow ─────────────────────────────────────────────────────
+
+btnInvite.addEventListener('click', async () => {
+  if (!myRoomId) return;
+  inviteBackdrop.classList.remove('hidden');
+  inviteLoading.style.display = 'block';
+  invitePreviewCanvas.style.display = 'none';
+
+  const joinUrl = `${window.location.origin}/?room=${myRoomId}`;
+  try {
+    // Generate full-res image
+    inviteCanvas = await ShareModule.generateInviteImage({
+      roomCode: myRoomId,
+      joinUrl,
+      hostName: playerName
+    });
+
+    // Show tiny preview (scaled thumbnail)
+    const previewCtx = invitePreviewCanvas.getContext('2d');
+    invitePreviewCanvas.width = 108;
+    invitePreviewCanvas.height = 192;
+    previewCtx.drawImage(inviteCanvas, 0, 0, 108, 192);
+    inviteLoading.style.display = 'none';
+    invitePreviewCanvas.style.display = 'block';
+  } catch (e) {
+    inviteLoading.textContent = 'Error generando imagen 😢';
+  }
+});
+
+btnShareInvite.addEventListener('click', async () => {
+  if (!inviteCanvas) return;
+  try {
+    const result = await ShareModule.shareToInstagram(
+      inviteCanvas,
+      'invitacion-caradecaca.png',
+      `💩 ¡${playerName} te reta a jugar Cara de Caca! Únete con el código ${myRoomId} en ${window.location.origin}`
+    );
+    if (result === 'downloaded') {
+      btnShareInvite.textContent = '✅ Imagen descargada';
+      setTimeout(() => { btnShareInvite.textContent = '📤 Compartir imagen'; }, 2500);
+    }
+  } catch (e) {
+    showError('No se pudo compartir la imagen');
+  }
+});
+
+btnCloseInvite.addEventListener('click', () => {
+  inviteBackdrop.classList.add('hidden');
 });

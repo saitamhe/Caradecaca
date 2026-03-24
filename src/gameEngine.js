@@ -47,6 +47,17 @@ function dealCards(players) {
   return deck.slice(idx); // remaining deck
 }
 
+function dealCardsExpress(players) {
+  const deck = shuffle(createDeck()); // single 54-card deck for faster games
+  let idx = 0;
+  for (const p of players) {
+    p.faceDown = deck.slice(idx, idx + 3); idx += 3;
+    p.faceUp   = deck.slice(idx, idx + 3); idx += 3;
+    p.hand     = deck.slice(idx, idx + 3); idx += 3;
+  }
+  return deck.slice(idx);
+}
+
 function getCardLabel(value) {
   if (value === 0) return 'Joker';
   if (value === 11) return 'J';
@@ -364,12 +375,13 @@ function getPublicState(state) {
       connected: p.connected
     })),
     loser: state.loser,
-    rankings: state.rankings
+    rankings: state.rankings,
+    express: state.express || false
   };
 }
 
 module.exports = {
-  createDoubleDeck, shuffle, dealCards, swapCards,
+  createDoubleDeck, shuffle, dealCards, dealCardsExpress, swapCards,
   findStartingPlayer, canPlay, applyPlay, takePile,
   drawToFill, advanceTurn, checkPlayerFinished, checkGameOver,
   getPlayerPhase, getPublicState, getCardLabel, RANK, burnPile, getTopRun

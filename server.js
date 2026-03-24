@@ -235,10 +235,11 @@ io.on('connection', (socket) => {
   });
 
   // START GAME
-  socket.on('start-game', () => {
+  socket.on('start-game', (data) => {
+    const express = !!(data && data.express);
     const roomId = roomManager.getRoomIdBySocket(socket.id);
     if (!roomId) return socket.emit('error', { message: 'No estás en ninguna sala' });
-    const result = roomManager.startGame(roomId, socket.id);
+    const result = roomManager.startGame(roomId, socket.id, { express });
     if (result.error) return socket.emit('error', { message: result.error });
 
     for (const p of result.state.players) {
@@ -354,6 +355,23 @@ io.on('connection', (socket) => {
     if (checkAndEndGame(state)) return;
     broadcastState(state);
     notifyCurrentPlayer(state);
+  });
+
+  // SEND REACTION (💩 cacas, zumbidos, emotes, gases)
+  socket.on('send-reaction', ({ type } = {}) => {
+    const roomId = roomManager.getRoomIdBySocket(socket.id);
+    if (!roomId) return;
+    const state = roomManager.getRoom(roomId);
+    if (!state) return;
+    const player = state.players.find(p => p.id === socket.id);
+    if (!player) return;
+    // Rate limit: max 1 reaction per 2 seconds per player
+    const now = Date.now();
+    if (player._lastReaction && now - player._lastReaction < 2000) return;
+    player._lastReaction = now;
+    const allowed = ['poop','buzz','gas','laugh','skull','fire','kiss','ok','no','shock','clap'];
+    if (!allowed.includes(type)) return;
+    io.to(roomId).emit('reaction', { from: player.name, type });
   });
 
   // LEAVE GAME

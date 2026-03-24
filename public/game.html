@@ -101,13 +101,35 @@
       <div class="action-bar" id="action-bar">
         <button class="btn btn-primary hidden" id="btn-play">▶ Jugar seleccionadas</button>
         <button class="btn btn-danger hidden" id="btn-take">💩 Comer caca</button>
-        <button class="btn btn-ghost btn-sm" id="btn-leave">🚪 Salir</button>
       </div>
     </div>
   </div>
 
   <!-- LOG -->
   <div id="game-log" class="game-log"></div>
+
+  <!-- FLOATING REACTIONS -->
+  <div id="floating-reactions"></div>
+
+  <!-- REACTION BAR -->
+  <div class="reaction-bar" id="reaction-bar">
+    <button class="btn-reaction" data-type="poop" title="Enviar 💩">💩</button>
+    <button class="btn-reaction" data-type="buzz" title="Zumbido 📳">📳</button>
+    <button class="btn-reaction btn-emotes-toggle" id="btn-emotes-toggle" title="Emoticonos 😝">😝</button>
+    <button class="btn-reaction" data-type="gas" title="Gases 💨">💨</button>
+    <button class="btn-reaction btn-home" id="btn-home" title="Volver al inicio 🏠">🏠</button>
+    <!-- Emote picker panel -->
+    <div class="emote-picker hidden" id="emote-picker">
+      <button class="emote-btn" data-type="laugh" title="😂">😂</button>
+      <button class="emote-btn" data-type="skull" title="💀">💀</button>
+      <button class="emote-btn" data-type="fire" title="🔥">🔥</button>
+      <button class="emote-btn" data-type="kiss" title="😘">😘</button>
+      <button class="emote-btn" data-type="ok" title="👍">👍</button>
+      <button class="emote-btn" data-type="no" title="👎">👎</button>
+      <button class="emote-btn" data-type="shock" title="😱">😱</button>
+      <button class="emote-btn" data-type="clap" title="👏">👏</button>
+    </div>
+  </div>
 
   <!-- CANVAS for share (hidden) -->
   <canvas id="share-canvas" style="display:none"></canvas>

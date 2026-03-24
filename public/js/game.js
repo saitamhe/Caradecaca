@@ -353,17 +353,110 @@ function doFlipFaceDown(index) {
   Analytics.trackCardsPlayed(-1, 1, 'faceDown'); // -1 = unknown value (hidden)
 }
 
-const btnLeave = document.getElementById('btn-leave');
-
 btnPlay.addEventListener('click', doPlayCards);
 btnTake.addEventListener('click', doTakePile);
-btnLeave.addEventListener('click', () => {
-  if (confirm('¿Seguro que quieres salir? Perderás la partida.')) {
-    Analytics.trackLeaveGame(publicState?.status || 'playing');
-    socket.emit('leave-game');
-    sessionStorage.removeItem('roomId');
-    window.location.href = '/';
+
+// ===== REACTION BAR =====
+
+const REACTION_EMOJIS = {
+  poop: '💩', buzz: '📳', gas: '💨',
+  laugh: '😂', skull: '💀', fire: '🔥',
+  kiss: '😘', ok: '👍', no: '👎',
+  shock: '😱', clap: '👏'
+};
+
+function playFartSound() {
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const duration = 0.55;
+    const gain = ctx.createGain();
+    gain.connect(ctx.destination);
+    gain.gain.setValueAtTime(0.28, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + duration);
+
+    const bufferSize = Math.floor(ctx.sampleRate * duration);
+    const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+    const data = buffer.getChannelData(0);
+    for (let i = 0; i < bufferSize; i++) {
+      data[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / bufferSize, 0.4);
+    }
+    const noise = ctx.createBufferSource();
+    noise.buffer = buffer;
+
+    const filter = ctx.createBiquadFilter();
+    filter.type = 'bandpass';
+    filter.frequency.setValueAtTime(280, ctx.currentTime);
+    filter.frequency.exponentialRampToValueAtTime(55, ctx.currentTime + duration);
+    filter.Q.setValueAtTime(4, ctx.currentTime);
+
+    noise.connect(filter);
+    filter.connect(gain);
+    noise.start();
+    setTimeout(() => ctx.close(), (duration + 0.1) * 1000);
+  } catch (e) { /* audio not supported */ }
+}
+
+function showFloatingReaction(emoji, fromName) {
+  const container = document.getElementById('floating-reactions');
+  const el = document.createElement('div');
+  el.className = 'floating-reaction';
+  el.style.left = (10 + Math.random() * 75) + '%';
+  el.innerHTML = `<span class="float-emoji">${emoji}</span><span class="float-name">${fromName}</span>`;
+  container.appendChild(el);
+  setTimeout(() => el.remove(), 2500);
+}
+
+function sendReaction(type) {
+  socket.emit('send-reaction', { type });
+  // Immediate local feedback
+  if (type === 'buzz') {
+    if (navigator.vibrate) navigator.vibrate([180, 60, 180]);
+  } else if (type === 'gas') {
+    playFartSound();
   }
+  showFloatingReaction(REACTION_EMOJIS[type] || '💩', 'Tú');
+}
+
+// Reaction bar click delegation
+document.getElementById('reaction-bar').addEventListener('click', (e) => {
+  // Data-type buttons (reaction send)
+  const reactionBtn = e.target.closest('[data-type]');
+  if (reactionBtn) {
+    const type = reactionBtn.dataset.type;
+    sendReaction(type);
+    document.getElementById('emote-picker').classList.add('hidden');
+    return;
+  }
+  // Emote toggle
+  if (e.target.closest('#btn-emotes-toggle')) {
+    document.getElementById('emote-picker').classList.toggle('hidden');
+    return;
+  }
+  // Home button
+  if (e.target.closest('#btn-home')) {
+    if (confirm('¿Seguro que quieres salir? Perderás la partida.')) {
+      Analytics.trackLeaveGame(publicState?.status || 'playing');
+      socket.emit('leave-game');
+      sessionStorage.removeItem('roomId');
+      window.location.href = '/';
+    }
+  }
+});
+
+// Close emote picker on outside click
+document.addEventListener('click', (e) => {
+  if (!e.target.closest('#reaction-bar')) {
+    document.getElementById('emote-picker').classList.add('hidden');
+  }
+});
+
+// Incoming reactions from other players
+socket.on('reaction', ({ from, type }) => {
+  const emoji = REACTION_EMOJIS[type] || '💩';
+  if (type === 'buzz' && navigator.vibrate) navigator.vibrate([180, 60, 180]);
+  if (type === 'gas') playFartSound();
+  showFloatingReaction(emoji, from);
+  addLog(`${from}: ${emoji}`);
 });
 
 // ===== SOCKET EVENTS =====
@@ -423,6 +516,9 @@ socket.on('swap-done', ({ hand, faceUp }) => {
 socket.on('play-started', ({ currentPlayerIdx, currentPlayerName }) => {
   addLog(`Empieza ${currentPlayerName}`, 'important');
   gameTable.classList.remove('hidden');
+  if (publicState?.express) {
+    addLog('⚡ Partida Express — mazo reducido', 'important');
+  }
 });
 
 socket.on('game-state', (ps) => {

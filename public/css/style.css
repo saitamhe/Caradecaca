@@ -275,6 +275,113 @@ body {
 .ranking-name { font-weight: 600; color: var(--gold); }
 .ranking-name.loser { color: var(--red); }
 
+/* ===== REACTION BAR ===== */
+.reaction-bar {
+  position: fixed; bottom: 0; left: 0; right: 0;
+  display: flex; align-items: center; justify-content: center;
+  gap: 8px; padding: 8px 10px;
+  background: rgba(5,15,8,0.92); backdrop-filter: blur(12px);
+  z-index: 50; border-top: 1px solid rgba(255,255,255,0.1);
+}
+.btn-reaction {
+  background: rgba(255,255,255,0.1); border: none; border-radius: 50%;
+  width: 46px; height: 46px; font-size: 1.35rem; cursor: pointer;
+  transition: transform 0.12s, background 0.15s;
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.btn-reaction:active { transform: scale(0.82); }
+.btn-reaction:hover { background: rgba(255,255,255,0.22); }
+.btn-reaction.btn-home { background: rgba(255,70,70,0.18); }
+.btn-reaction.btn-home:hover { background: rgba(255,70,70,0.38); }
+
+/* Emote picker popup */
+.emote-picker {
+  position: absolute; bottom: 66px; left: 50%; transform: translateX(-50%);
+  background: rgba(10,25,14,0.97); border: 1px solid rgba(255,255,255,0.2);
+  border-radius: 14px; padding: 10px; display: flex;
+  flex-wrap: wrap; gap: 5px; width: 230px;
+  justify-content: center; z-index: 60;
+  box-shadow: 0 -4px 24px rgba(0,0,0,0.6);
+}
+.emote-btn {
+  background: rgba(255,255,255,0.08); border: none; border-radius: 8px;
+  width: 46px; height: 46px; font-size: 1.45rem; cursor: pointer;
+  transition: transform 0.1s, background 0.1s;
+}
+.emote-btn:hover { background: rgba(255,255,255,0.2); }
+.emote-btn:active { transform: scale(0.82); }
+
+/* Floating reactions */
+#floating-reactions {
+  position: fixed; bottom: 70px; left: 0; right: 0;
+  pointer-events: none; z-index: 55; height: 0;
+}
+.floating-reaction {
+  position: absolute; bottom: 0;
+  display: flex; flex-direction: column; align-items: center;
+  animation: float-up 2.4s ease-out forwards;
+  pointer-events: none;
+}
+.float-emoji { font-size: 2.6rem; filter: drop-shadow(0 2px 6px rgba(0,0,0,0.5)); }
+.float-name { font-size: 0.65rem; color: rgba(255,255,255,0.65); margin-top: 2px; white-space: nowrap; }
+@keyframes float-up {
+  0%   { transform: translateY(0) scale(0.4);   opacity: 0; }
+  15%  { transform: translateY(-24px) scale(1.15); opacity: 1; }
+  80%  { opacity: 0.85; }
+  100% { transform: translateY(-200px) scale(0.7); opacity: 0; }
+}
+
+/* Game table padding for reaction bar */
+.game-table { padding-bottom: 68px; }
+
+/* Express badge */
+.express-badge {
+  background: linear-gradient(90deg, #ff9500, #ff4400);
+  color: #fff; font-size: 0.68rem; font-weight: 700;
+  padding: 2px 8px; border-radius: 10px; letter-spacing: 1px;
+  display: inline-block; margin-left: 6px; vertical-align: middle;
+}
+
+/* ===== LOBBY INVITE SECTION ===== */
+.invite-section {
+  display: flex; gap: 8px; justify-content: center; flex-wrap: wrap;
+  margin-top: 10px;
+}
+.btn-invite {
+  background: linear-gradient(135deg, #833ab4, #fd1d1d, #fcb045);
+  color: #fff; border: none; border-radius: var(--radius);
+  padding: 10px 18px; font-size: 0.95rem; font-weight: 700;
+  cursor: pointer; transition: transform 0.1s, opacity 0.15s;
+}
+.btn-invite:active { transform: scale(0.96); }
+.btn-invite:hover { opacity: 0.9; }
+.btn-express {
+  background: linear-gradient(135deg, #ff6b00, #ff9500);
+  color: #fff; border: none; border-radius: var(--radius);
+  padding: 10px 18px; font-size: 0.95rem; font-weight: 700;
+  cursor: pointer; transition: transform 0.1s, opacity 0.15s;
+}
+.btn-express:active { transform: scale(0.96); }
+.btn-express:hover { opacity: 0.9; }
+
+/* Invite share modal */
+.invite-backdrop {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.92);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 300; padding: 16px;
+}
+.invite-modal {
+  background: #1a3a20; border-radius: 16px; padding: 24px;
+  width: 100%; max-width: 400px;
+  border: 1px solid rgba(255,255,255,0.15); text-align: center;
+}
+.invite-modal h3 { color: var(--gold); margin-bottom: 8px; font-size: 1.3rem; }
+.invite-modal p  { color: #aaa; font-size: 0.88rem; margin-bottom: 16px; line-height: 1.5; }
+.invite-preview {
+  width: 140px; height: auto; border-radius: 8px; margin: 0 auto 16px;
+  display: block; border: 2px solid rgba(255,255,255,0.2);
+}
+
 /* RESPONSIVE */
 @media (max-width: 480px) {
   .card { width: 48px; height: 70px; }

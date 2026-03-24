@@ -1,6 +1,6 @@
 'use strict';
 
-const { dealCards, findStartingPlayer, shuffle } = require('./gameEngine');
+const { dealCards, dealCardsExpress, findStartingPlayer, shuffle } = require('./gameEngine');
 
 const rooms = new Map(); // roomId -> GameState
 const socketToRoom = new Map(); // socketId -> roomId
@@ -116,15 +116,16 @@ function removePlayer(socketId) {
   return { roomId, state, player };
 }
 
-function startGame(roomId, socketId) {
+function startGame(roomId, socketId, { express = false } = {}) {
   const state = rooms.get(roomId);
   if (!state) return { error: 'Sala no encontrada' };
   if (state.hostId !== socketId) return { error: 'Solo el anfitrión puede iniciar' };
   if (state.status !== 'waiting') return { error: 'El juego ya inició' };
   if (state.players.length < 2) return { error: 'Se necesitan al menos 2 jugadores' };
 
-  // Deal cards
-  state.deck = dealCards(state.players);
+  // Deal cards — express uses a single deck (54 cards) for faster games
+  state.deck = express ? dealCardsExpress(state.players) : dealCards(state.players);
+  state.express = express;
   state.status = 'swapping';
   state.lastActivity = Date.now();
   return { state };

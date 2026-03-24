@@ -27,6 +27,10 @@
         <span class="room-code" id="room-code">------</span>
         <button class="btn btn-ghost btn-sm" id="btn-copy-link">📋 Copiar enlace</button>
       </div>
+      <!-- Invite section (shown once host has a room code) -->
+      <div class="invite-section hidden" id="invite-section">
+        <button class="btn-invite" id="btn-invite">📸 Invitar por Instagram</button>
+      </div>
     </div>
 
     <div class="players-section">
@@ -36,19 +40,39 @@
 
     <div class="lobby-actions">
       <button class="btn btn-primary btn-lg hidden" id="btn-start">🚀 ¡Iniciar partida!</button>
+      <button class="btn btn-express hidden" id="btn-express">⚡ Partida Express</button>
       <button class="btn btn-secondary hidden" id="btn-add-bot">🤖 Agregar Bot</button>
       <p class="waiting-msg" id="waiting-msg">Esperando al anfitrión...</p>
     </div>
 
     <div class="lobby-footer">
-      <button class="btn btn-ghost btn-sm" id="btn-back">← Salir de la sala</button>
+      <button class="btn btn-ghost btn-sm" id="btn-back">🏠 Volver al inicio</button>
     </div>
 
     <div id="error-msg" class="error-msg hidden"></div>
   </div>
 
+  <!-- Invite share modal -->
+  <div class="invite-backdrop hidden" id="invite-backdrop">
+    <div class="invite-modal">
+      <h3>📸 Invitar por Instagram</h3>
+      <p>Genera una historia lista para compartir.<br>¡Tus amigos podrán unirse escaneando el QR o con el código!</p>
+      <canvas id="invite-preview-canvas" class="invite-preview" width="108" height="192" style="display:none"></canvas>
+      <div id="invite-loading" style="color:#aaa;padding:20px 0">Generando imagen...</div>
+      <div class="btn-group">
+        <button class="btn btn-invite" id="btn-share-invite">📤 Compartir imagen</button>
+        <button class="btn btn-ghost btn-sm" id="btn-close-invite">✕ Cerrar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Hidden full-res canvas for share.js -->
+  <canvas id="share-canvas" style="display:none"></canvas>
+
   <script src="/socket.io/socket.io.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
   <script src="/js/analytics.js"></script>
+  <script src="/js/share.js"></script>
   <script src="/js/lobby.js"></script>
 </body>
 </html>
