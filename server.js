@@ -50,7 +50,7 @@ io.on('connection', (socket) => {
       const existingPlayer = existing.players.find(
         p => p.name.toLowerCase() === name.trim().toLowerCase()
       );
-      if (existingPlayer && (state.status === 'swapping' || state.status === 'playing')) {
+      if (existingPlayer && (existing.status === 'swapping' || existing.status === 'playing')) {
         const result = roomManager.rejoinRoom(upperRoom, socket.id, name.trim());
         if (result.error) return socket.emit('error', { message: result.error });
         socket.join(upperRoom);
