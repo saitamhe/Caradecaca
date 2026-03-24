@@ -1,0 +1,12 @@
+services:
+  caradecaca:
+    build: .
+    container_name: caradecaca
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - PORT=3000
+    # Opcional: si quieres usar una red interna con nginx
+    # networks:
+    #   - hestia-proxy
