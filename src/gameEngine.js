@@ -86,13 +86,12 @@ function findStartingPlayer(players) {
   return bestIdx;
 }
 
-// Get effective top card rank (ignoring 2s stacked on top)
+// Get effective top card. If top is a 2, returns null (any card can be played after a 2).
 function getEffectiveTop(discardPile) {
   if (discardPile.length === 0) return null;
-  for (let i = discardPile.length - 1; i >= 0; i--) {
-    if (discardPile[i].value !== 2) return discardPile[i];
-  }
-  return null; // all 2s
+  const top = discardPile[discardPile.length - 1];
+  if (top.value === 2) return null; // after a 2, anything goes (even a 3)
+  return top;
 }
 
 // Check if playing these cards is valid
