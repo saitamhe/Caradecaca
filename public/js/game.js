@@ -417,6 +417,16 @@ function sendReaction(type) {
   showFloatingReaction(REACTION_EMOJIS[type] || '💩', 'Tú');
 }
 
+// Home button (fixed top-right)
+document.getElementById('btn-home').addEventListener('click', () => {
+  if (confirm('¿Seguro que quieres salir? Perderás la partida.')) {
+    Analytics.trackLeaveGame(publicState?.status || 'playing');
+    socket.emit('leave-game');
+    sessionStorage.removeItem('roomId');
+    window.location.href = '/';
+  }
+});
+
 // Reaction bar click delegation
 document.getElementById('reaction-bar').addEventListener('click', (e) => {
   // Data-type buttons (reaction send)
@@ -432,20 +442,20 @@ document.getElementById('reaction-bar').addEventListener('click', (e) => {
     document.getElementById('emote-picker').classList.toggle('hidden');
     return;
   }
-  // Home button
-  if (e.target.closest('#btn-home')) {
-    if (confirm('¿Seguro que quieres salir? Perderás la partida.')) {
-      Analytics.trackLeaveGame(publicState?.status || 'playing');
-      socket.emit('leave-game');
-      sessionStorage.removeItem('roomId');
-      window.location.href = '/';
-    }
+});
+
+// Emote picker: send reaction and close
+document.getElementById('emote-picker').addEventListener('click', (e) => {
+  const btn = e.target.closest('[data-type]');
+  if (btn) {
+    sendReaction(btn.dataset.type);
+    document.getElementById('emote-picker').classList.add('hidden');
   }
 });
 
 // Close emote picker on outside click
 document.addEventListener('click', (e) => {
-  if (!e.target.closest('#reaction-bar')) {
+  if (!e.target.closest('#emote-picker') && !e.target.closest('#btn-emotes-toggle')) {
     document.getElementById('emote-picker').classList.add('hidden');
   }
 });
