@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sala de espera – Cara de Caca 💩</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body class="page-lobby">
+  <div class="lobby-container">
+    <div class="lobby-header">
+      <h1>💩 Sala de Espera</h1>
+      <div class="room-code-box">
+        <span class="room-label">Código de sala</span>
+        <span class="room-code" id="room-code">------</span>
+        <button class="btn btn-ghost btn-sm" id="btn-copy-link">📋 Copiar enlace</button>
+      </div>
+    </div>
+
+    <div class="players-section">
+      <h2>Jugadores (<span id="player-count">0</span>/9)</h2>
+      <ul id="player-list" class="player-list"></ul>
+    </div>
+
+    <div class="lobby-actions">
+      <button class="btn btn-primary btn-lg hidden" id="btn-start">🚀 ¡Iniciar partida!</button>
+      <p class="waiting-msg" id="waiting-msg">Esperando al anfitrión...</p>
+    </div>
+
+    <div id="error-msg" class="error-msg hidden"></div>
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="/js/lobby.js"></script>
+</body>
+</html>

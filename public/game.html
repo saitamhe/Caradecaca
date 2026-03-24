@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cara de Caca 💩</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body class="page-game">
+
+  <!-- SWAP PHASE OVERLAY -->
+  <div id="swap-overlay" class="overlay hidden">
+    <div class="overlay-panel">
+      <h2>🔄 Fase de Intercambio</h2>
+      <p>Puedes intercambiar cartas de tu mano con las boca arriba.<br>Haz clic en una carta de mano y luego en una boca arriba.</p>
+      <div class="swap-area">
+        <div class="swap-col">
+          <h3>Boca Arriba</h3>
+          <div id="swap-faceup" class="card-row"></div>
+        </div>
+        <div class="swap-col">
+          <h3>Tu Mano</h3>
+          <div id="swap-hand" class="card-row"></div>
+        </div>
+      </div>
+      <div class="swap-status" id="swap-status"></div>
+      <div class="btn-group">
+        <button class="btn btn-primary" id="btn-confirm-swap">✅ Listo</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- GAME OVER OVERLAY -->
+  <div id="gameover-overlay" class="overlay hidden">
+    <div class="overlay-panel gameover-panel">
+      <div class="poop-big">💩</div>
+      <h2 id="gameover-title">Cara de Caca</h2>
+      <p id="gameover-msg"></p>
+      <div id="rankings-list" class="rankings-list"></div>
+      <div class="btn-group">
+        <button class="btn btn-poop" id="btn-share">📸 Compartir en Instagram</button>
+        <button class="btn btn-secondary" id="btn-new-game">🔄 Nueva partida</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN GAME TABLE -->
+  <div id="game-table" class="game-table hidden">
+
+    <!-- TOP: Opponents -->
+    <div id="opponents-area" class="opponents-area"></div>
+
+    <!-- CENTER: Deck + Pile -->
+    <div class="center-area">
+      <div class="deck-zone">
+        <div class="card card-back" id="deck-card">
+          <span id="deck-count">0</span>
+        </div>
+        <span class="zone-label">Mazo</span>
+      </div>
+      <div class="pile-zone">
+        <div id="pile-display" class="pile-display">
+          <div class="empty-pile">Pila vacía</div>
+        </div>
+        <span class="zone-label">Descarte</span>
+      </div>
+      <div class="turn-indicator" id="turn-indicator">Esperando...</div>
+    </div>
+
+    <!-- BOTTOM: My cards -->
+    <div class="my-area">
+      <div class="my-info">
+        <span class="my-name" id="my-name">Tú</span>
+        <span class="my-phase" id="my-phase"></span>
+      </div>
+      <!-- Face down -->
+      <div class="my-facedown-row" id="my-facedown">
+        <div class="zone-label">Boca abajo</div>
+      </div>
+      <!-- Face up (shown on top of face down) -->
+      <div class="my-faceup-row" id="my-faceup">
+        <div class="zone-label">Boca arriba</div>
+      </div>
+      <!-- Hand -->
+      <div class="my-hand-row" id="my-hand">
+        <div class="zone-label">Tu mano</div>
+      </div>
+      <!-- Actions -->
+      <div class="action-bar" id="action-bar">
+        <button class="btn btn-primary hidden" id="btn-play">▶ Jugar seleccionadas</button>
+        <button class="btn btn-danger hidden" id="btn-take">💩 Comer caca</button>
+        <button class="btn btn-ghost btn-sm" id="btn-help-toggle">❓ Reglas</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- LOG -->
+  <div id="game-log" class="game-log"></div>
+
+  <!-- CANVAS for share (hidden) -->
+  <canvas id="share-canvas" style="display:none"></canvas>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="/js/share.js"></script>
+  <script src="/js/game.js"></script>
+</body>
+</html>

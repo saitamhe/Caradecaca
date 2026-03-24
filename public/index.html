@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cara de Caca 💩</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body class="page-landing">
+  <div class="landing-container">
+    <div class="logo">
+      <span class="logo-emoji">💩</span>
+      <h1>CARA DE CACA</h1>
+      <p class="tagline">El juego más cochino de las cartas</p>
+    </div>
+
+    <div class="card-panel" id="panel-name">
+      <h2>¿Cómo te llamas?</h2>
+      <input type="text" id="input-name" placeholder="Tu nombre" maxlength="20" autocomplete="off" autofocus>
+      <div class="btn-group">
+        <button class="btn btn-primary" id="btn-create">Crear partida</button>
+        <button class="btn btn-secondary" id="btn-join-toggle">Unirse a partida</button>
+      </div>
+    </div>
+
+    <div class="card-panel hidden" id="panel-join">
+      <h2>Código de sala</h2>
+      <input type="text" id="input-room" placeholder="ABC123" maxlength="6" autocomplete="off" style="text-transform:uppercase">
+      <div class="btn-group">
+        <button class="btn btn-primary" id="btn-join">Entrar</button>
+        <button class="btn btn-ghost" id="btn-cancel-join">Cancelar</button>
+      </div>
+    </div>
+
+    <div id="error-msg" class="error-msg hidden"></div>
+
+    <div class="rules-summary">
+      <details>
+        <summary>¿Cómo se juega? 🃏</summary>
+        <div class="rules-content">
+          <p>Cada jugador tiene <strong>3 cartas boca abajo</strong>, <strong>3 boca arriba</strong> y <strong>3 en mano</strong>.</p>
+          <p>Pon cartas iguales o superiores a la del tope. Si no puedes... <strong>¡te comes la caca!</strong></p>
+          <h4>Cartas especiales:</h4>
+          <ul>
+            <li>🃏 <strong>2</strong> – Comodín, luego puede ir cualquier carta</li>
+            <li>7️⃣ <strong>7</strong> – El siguiente debe poner igual o menor</li>
+            <li>🔟 <strong>10</strong> – Quema toda la caca</li>
+            <li>🔄 <strong>J</strong> – Invierte el sentido</li>
+            <li>😈 <strong>Joker</strong> – El siguiente se come toda la caca</li>
+            <li>4️⃣ <strong>Cuatro iguales</strong> – También quema la caca</li>
+          </ul>
+          <p>Pierde el último que quede con cartas.</p>
+        </div>
+      </details>
+    </div>
+  </div>
+
+  <script src="/js/index.js"></script>
+</body>
+</html>
