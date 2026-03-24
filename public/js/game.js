@@ -427,35 +427,35 @@ document.getElementById('btn-home').addEventListener('click', () => {
   }
 });
 
-// Emote toggle
+// Toggle reacciones rápidas
+document.getElementById('btn-reactions-toggle').addEventListener('click', (e) => {
+  e.stopPropagation();
+  document.getElementById('emote-picker').classList.add('hidden');
+  document.getElementById('reaction-picker').classList.toggle('hidden');
+});
+
+// Toggle emoticonos
 document.getElementById('btn-emotes-toggle').addEventListener('click', (e) => {
   e.stopPropagation();
+  document.getElementById('reaction-picker').classList.add('hidden');
   document.getElementById('emote-picker').classList.toggle('hidden');
 });
 
-// Emote picker: send reaction and close
-document.getElementById('emote-picker').addEventListener('click', (e) => {
+// Cualquier botón de reacción en ambos dropdowns
+document.getElementById('top-right-controls').addEventListener('click', (e) => {
   e.stopPropagation();
   const btn = e.target.closest('[data-type]');
   if (btn) {
     sendReaction(btn.dataset.type);
+    document.getElementById('reaction-picker').classList.add('hidden');
     document.getElementById('emote-picker').classList.add('hidden');
   }
 });
 
-// Reaction bar click delegation
-document.getElementById('reaction-bar').addEventListener('click', (e) => {
-  const reactionBtn = e.target.closest('[data-type]');
-  if (reactionBtn) {
-    sendReaction(reactionBtn.dataset.type);
-  }
-});
-
-// Close emote picker on outside click
-document.addEventListener('click', (e) => {
-  if (!e.target.closest('#top-right-controls')) {
-    document.getElementById('emote-picker').classList.add('hidden');
-  }
+// Cerrar dropdowns al tocar fuera
+document.addEventListener('click', () => {
+  document.getElementById('reaction-picker').classList.add('hidden');
+  document.getElementById('emote-picker').classList.add('hidden');
 });
 
 // Incoming reactions from other players

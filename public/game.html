@@ -113,9 +113,21 @@
 
   <!-- TOP-RIGHT CONTROLS -->
   <div class="top-right-controls" id="top-right-controls">
+    <!-- Toggle reacciones rápidas -->
+    <button class="btn-top-ctrl btn-reactions-toggle" id="btn-reactions-toggle" title="Reacciones">💩</button>
+    <!-- Toggle emoticonos -->
     <button class="btn-top-ctrl btn-emotes-toggle" id="btn-emotes-toggle" title="Emoticonos">😝</button>
+    <!-- Casa -->
     <button class="btn-top-ctrl btn-home-fixed" id="btn-home" title="Volver al inicio">🏠</button>
-    <!-- Emote picker dropdown (se abre hacia abajo) -->
+
+    <!-- Dropdown reacciones rápidas -->
+    <div class="reaction-picker hidden" id="reaction-picker">
+      <button class="emote-btn" data-type="poop">💩</button>
+      <button class="emote-btn" data-type="buzz">📳</button>
+      <button class="emote-btn" data-type="gas">💨</button>
+    </div>
+
+    <!-- Dropdown emoticonos -->
     <div class="emote-picker hidden" id="emote-picker">
       <button class="emote-btn" data-type="laugh">😂</button>
       <button class="emote-btn" data-type="skull">💀</button>
@@ -126,13 +138,6 @@
       <button class="emote-btn" data-type="shock">😱</button>
       <button class="emote-btn" data-type="clap">👏</button>
     </div>
-  </div>
-
-  <!-- REACTION BAR (solo reacciones rápidas) -->
-  <div class="reaction-bar" id="reaction-bar">
-    <button class="btn-reaction" data-type="poop" title="Enviar 💩">💩</button>
-    <button class="btn-reaction" data-type="buzz" title="Zumbido 📳">📳</button>
-    <button class="btn-reaction" data-type="gas" title="Gases 💨">💨</button>
   </div>
 
   <!-- CANVAS for share (hidden) -->
