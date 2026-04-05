@@ -202,67 +202,202 @@ async function generateInviteImage({ roomCode, joinUrl, hostName }) {
 function generateShareImage({ loserName, myName, isLoser, rankings, roomUrl }) {
   const canvas = document.getElementById('share-canvas');
   const W = 1080, H = 1920;
-  canvas.width = W;
-  canvas.height = H;
+  canvas.width = W; canvas.height = H;
   const ctx = canvas.getContext('2d');
+  const cx = W / 2;
 
-  const grad = ctx.createRadialGradient(W/2, H/2, 0, W/2, H/2, H);
-  grad.addColorStop(0, '#1a6b3a');
-  grad.addColorStop(1, '#0a2a15');
-  ctx.fillStyle = grad;
+  // ── BACKGROUND: near-black with subtle vignette ──
+  ctx.fillStyle = '#0a0f0b';
   ctx.fillRect(0, 0, W, H);
 
-  ctx.globalAlpha = 0.08;
-  for (let i = 0; i < 6; i++) {
-    ctx.beginPath();
-    ctx.arc(Math.random()*W, Math.random()*H, 80+Math.random()*200, 0, Math.PI*2);
-    ctx.fillStyle = '#fff';
-    ctx.fill();
-  }
+  // Subtle green radial glow in center
+  const centerGlow = ctx.createRadialGradient(cx, H * 0.42, 0, cx, H * 0.42, 600);
+  centerGlow.addColorStop(0, 'rgba(20,90,45,0.45)');
+  centerGlow.addColorStop(1, 'rgba(0,0,0,0)');
+  ctx.fillStyle = centerGlow;
+  ctx.fillRect(0, 0, W, H);
+
+  // Scattered poop emojis (background, very faint)
+  ctx.globalAlpha = 0.07;
+  ctx.font = '80px sans-serif';
+  const bgEmojis = ['💩','💩','🔥','💩','💀','💩','🔥','💩'];
+  const bgPos = [
+    [90,200],[950,340],[60,750],[980,620],[120,1100],[920,980],[80,1450],[970,1300]
+  ];
+  bgPos.forEach(([x,y], i) => { ctx.fillText(bgEmojis[i], x, y); });
   ctx.globalAlpha = 1;
 
-  ctx.textAlign = 'center';
-  ctx.fillStyle = '#f0c040';
-  ctx.font = 'bold 100px "Segoe UI", sans-serif';
-  ctx.fillText('CARA DE CACA', W/2, 260);
-
-  ctx.font = '280px sans-serif';
-  ctx.fillText('💩', W/2, 600);
-
-  ctx.fillStyle = isLoser ? '#ff6b6b' : '#6bffb0';
-  ctx.font = 'bold 90px "Segoe UI", sans-serif';
-  const resultText = isLoser ? `¡${myName} SE COMIÓ LA CACA!` : `¡${myName} NO SE COMIÓ!`;
-  wrapText(ctx, resultText, W/2, 780, W - 120, 110);
-
-  ctx.fillStyle = 'rgba(0,0,0,0.4)';
+  // ── NEON BORDER ──
+  const bw = 18; // border width
+  // Left + right: neon green
+  const neonGreen = '#00ff6a';
+  const neonPink  = '#ff2d6a';
+  // Top bar — green
+  ctx.shadowColor = neonGreen; ctx.shadowBlur = 28;
+  ctx.strokeStyle = neonGreen; ctx.lineWidth = bw;
   ctx.beginPath();
-  ctx.roundRect(80, 950, W - 160, rankings.length * 90 + 40, 20);
-  ctx.fill();
+  ctx.moveTo(bw/2, bw/2); ctx.lineTo(W - bw/2, bw/2);
+  ctx.stroke();
+  // Bottom bar — pink
+  ctx.shadowColor = neonPink; ctx.shadowBlur = 28;
+  ctx.strokeStyle = neonPink; ctx.lineWidth = bw;
+  ctx.beginPath();
+  ctx.moveTo(bw/2, H - bw/2); ctx.lineTo(W - bw/2, H - bw/2);
+  ctx.stroke();
+  // Left — green
+  ctx.shadowColor = neonGreen; ctx.shadowBlur = 28;
+  ctx.strokeStyle = neonGreen; ctx.lineWidth = bw;
+  ctx.beginPath();
+  ctx.moveTo(bw/2, bw/2); ctx.lineTo(bw/2, H - bw/2);
+  ctx.stroke();
+  // Right — pink
+  ctx.shadowColor = neonPink; ctx.shadowBlur = 28;
+  ctx.strokeStyle = neonPink; ctx.lineWidth = bw;
+  ctx.beginPath();
+  ctx.moveTo(W - bw/2, bw/2); ctx.lineTo(W - bw/2, H - bw/2);
+  ctx.stroke();
+  ctx.shadowBlur = 0;
 
+  // ── TITLE: CARA DE CACA ──
+  ctx.textAlign = 'center';
+  ctx.shadowColor = neonGreen; ctx.shadowBlur = 35;
+  ctx.fillStyle = '#ffffff';
+  ctx.font = 'bold 128px "Segoe UI", Arial Black, sans-serif';
+  ctx.fillText('CARA DE CACA', cx, 190);
+  ctx.shadowBlur = 0;
+
+  // Accent line under title
+  const lineGrad = ctx.createLinearGradient(120, 0, W-120, 0);
+  lineGrad.addColorStop(0, 'transparent');
+  lineGrad.addColorStop(0.3, neonGreen);
+  lineGrad.addColorStop(0.7, neonPink);
+  lineGrad.addColorStop(1, 'transparent');
+  ctx.strokeStyle = lineGrad;
+  ctx.lineWidth = 4;
+  ctx.shadowColor = neonGreen; ctx.shadowBlur = 10;
+  ctx.beginPath(); ctx.moveTo(120, 215); ctx.lineTo(W-120, 215); ctx.stroke();
+  ctx.shadowBlur = 0;
+
+  // ── GIANT POOP EMOJI ──
+  ctx.shadowColor = 'rgba(255,80,0,0.7)'; ctx.shadowBlur = 60;
+  ctx.font = '320px sans-serif';
+  ctx.fillText('💩', cx, 620);
+  ctx.shadowBlur = 0;
+
+  // Small emojis floating around poop
+  const floatEmojis = [
+    ['😂', cx - 320, 370, '90px'],
+    ['💀', cx + 300, 400, '80px'],
+    ['🔥', cx - 280, 540, '75px'],
+    ['👑', cx + 260, 500, '85px'],
+    ['😱', cx - 250, 650, '70px'],
+    ['👎', cx + 320, 620, '70px'],
+  ];
+  floatEmojis.forEach(([em, x, y, fs]) => {
+    ctx.font = `${fs} sans-serif`;
+    ctx.globalAlpha = 0.85;
+    ctx.fillText(em, x, y);
+  });
+  ctx.globalAlpha = 1;
+
+  // ── RESULT TEXT ──
+  const loserDisplayName = loserName.toUpperCase();
+  ctx.textAlign = 'center';
+
+  if (isLoser) {
+    // Player lost — big red shame text
+    ctx.shadowColor = '#ff0040'; ctx.shadowBlur = 30;
+    ctx.fillStyle = neonPink;
+    ctx.font = 'bold 100px "Segoe UI", sans-serif';
+    ctx.fillText('¡YO ME LA COMÍ!', cx, 800);
+    ctx.shadowBlur = 0;
+    ctx.fillStyle = 'rgba(255,255,255,0.75)';
+    ctx.font = '58px "Segoe UI", sans-serif';
+    ctx.fillText(`${myName} = CARA DE CACA 💩`, cx, 880);
+  } else {
+    // Player won
+    ctx.shadowColor = neonGreen; ctx.shadowBlur = 30;
+    ctx.fillStyle = '#00ff6a';
+    ctx.font = 'bold 96px "Segoe UI", sans-serif';
+    ctx.fillText('¡ME SALVÉ! 🏆', cx, 800);
+    ctx.shadowBlur = 0;
+    ctx.fillStyle = 'rgba(255,255,255,0.7)';
+    ctx.font = '54px "Segoe UI", sans-serif';
+    wrapText(ctx, `${loserDisplayName} SE COMIÓ TODA LA CACA`, cx, 878, W - 140, 68);
+  }
+
+  // ── RESULTS CARD ──
+  const cardY = 950;
+  const cardH = Math.max(rankings.length * 96 + 120, 240);
+
+  // Card background with neon border
+  ctx.shadowColor = 'rgba(0,255,106,0.3)'; ctx.shadowBlur = 20;
+  drawRoundRect(ctx, 70, cardY, W - 140, cardH, 28, 'rgba(5,20,10,0.88)');
+  ctx.shadowBlur = 0;
+  ctx.strokeStyle = 'rgba(0,255,106,0.5)'; ctx.lineWidth = 3;
+  ctx.beginPath(); ctx.roundRect(70, cardY, W - 140, cardH, 28); ctx.stroke();
+
+  // Card header
   ctx.textAlign = 'left';
   ctx.fillStyle = '#f0c040';
-  ctx.font = 'bold 55px "Segoe UI", sans-serif';
-  ctx.fillText('Resultados:', 130, 1010);
+  ctx.font = 'bold 62px "Segoe UI", sans-serif';
+  ctx.fillText('Resultados:', 130, cardY + 80);
 
   const medals = ['🏆', '🥈', '🥉'];
   rankings.forEach((r, i) => {
-    const y = 1090 + i * 90;
-    const medal = i < rankings.length - 1 ? (medals[i] || `${i+1}.`) : '💩';
-    ctx.font = '55px sans-serif';
-    ctx.fillText(medal, 110, y);
-    ctx.font = i === rankings.length - 1 ? 'bold 55px "Segoe UI", sans-serif' : '55px "Segoe UI", sans-serif';
-    ctx.fillStyle = i === rankings.length - 1 ? '#ff6b6b' : '#fff';
-    ctx.fillText(r.name, 190, y);
-    ctx.fillStyle = '#f0c040';
+    const ry = cardY + 150 + i * 96;
+    const isLast = i === rankings.length - 1;
+    const medal = isLast ? '💩' : (medals[i] || `${i+1}.`);
+
+    // Row bg for loser
+    if (isLast) {
+      ctx.globalAlpha = 0.25;
+      drawRoundRect(ctx, 90, ry - 56, W - 180, 76, 12, '#ff2d6a');
+      ctx.globalAlpha = 1;
+    }
+
+    ctx.font = '60px sans-serif';
+    ctx.fillText(medal, 110, ry);
+    ctx.font = isLast ? 'bold 58px "Segoe UI", sans-serif' : '56px "Segoe UI", sans-serif';
+    ctx.fillStyle = isLast ? neonPink : '#ffffff';
+    ctx.shadowColor = isLast ? neonPink : 'transparent';
+    ctx.shadowBlur = isLast ? 12 : 0;
+    ctx.fillText(r.name, 200, ry);
+    ctx.shadowBlur = 0;
   });
 
+  // ── TAGLINE ──
+  const tagY = cardY + cardH + 90;
   ctx.textAlign = 'center';
-  ctx.fillStyle = 'rgba(255,255,255,0.5)';
-  ctx.font = '45px "Segoe UI", sans-serif';
-  ctx.fillText('Juega en:', W/2, H - 200);
+  ctx.fillStyle = 'rgba(255,255,255,0.9)';
+  ctx.font = 'bold 72px "Segoe UI", Arial Black, sans-serif';
+  ctx.shadowColor = 'rgba(0,0,0,0.6)'; ctx.shadowBlur = 8;
+  ctx.fillText('EL JUEGO QUE', cx, tagY);
+  ctx.fillText('HUELE A DIVERSIÓN.', cx, tagY + 88);
+  ctx.shadowBlur = 0;
+
+  // ── CTA BUTTON (green pill) ──
+  const btnY = tagY + 140;
+  const btnW = 780, btnH = 110, btnX = cx - btnW / 2;
+  const btnGrad = ctx.createLinearGradient(btnX, 0, btnX + btnW, 0);
+  btnGrad.addColorStop(0, '#00d45a');
+  btnGrad.addColorStop(1, '#00ff80');
+  ctx.shadowColor = neonGreen; ctx.shadowBlur = 24;
+  drawRoundRect(ctx, btnX, btnY, btnW, btnH, 55, btnGrad);
+  ctx.shadowBlur = 0;
+  ctx.fillStyle = '#0a1a0e';
+  ctx.font = 'bold 52px "Segoe UI", sans-serif';
+  ctx.fillText('¡JUEGA GRATIS EN EL NAVEGADOR!', cx, btnY + 73);
+
+  // ── URL FOOTER ──
+  ctx.fillStyle = 'rgba(255,255,255,0.45)';
+  ctx.font = '44px "Segoe UI", sans-serif';
+  ctx.fillText('Juega en:', cx, H - 160);
+  ctx.shadowColor = '#f0c040'; ctx.shadowBlur = 16;
   ctx.fillStyle = '#f0c040';
-  ctx.font = 'bold 50px "Segoe UI", sans-serif';
-  ctx.fillText(roomUrl || 'caradecaca.game', W/2, H - 130);
+  ctx.font = 'bold 60px "Segoe UI", sans-serif';
+  ctx.fillText(roomUrl || 'caracaca.com', cx, H - 85);
+  ctx.shadowBlur = 0;
 
   return canvas;
 }
