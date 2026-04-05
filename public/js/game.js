@@ -35,9 +35,21 @@ const myNameEl = document.getElementById('my-name');
 const myPhaseEl = document.getElementById('my-phase');
 const opponentsEl = document.getElementById('opponents-area');
 const pileDisplayEl = document.getElementById('pile-display');
-const deckCountEl = document.getElementById('deck-count');
+const deckCardEl = document.getElementById('deck-card');
 const turnIndicatorEl = document.getElementById('turn-indicator');
 const gameLogEl = document.getElementById('game-log');
+
+// ===== AUDIO =====
+let _audioCtx = null;
+function getAudioCtx() {
+  if (!_audioCtx) _audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  if (_audioCtx.state === 'suspended') _audioCtx.resume();
+  return _audioCtx;
+}
+// Unlock audio on first user interaction (required on iOS/Android)
+['click', 'touchstart', 'keydown'].forEach(evt =>
+  document.addEventListener(evt, () => { try { getAudioCtx(); } catch(e){} }, { once: true, passive: true })
+);
 
 // Card helpers
 const SUITS_SYMBOL = { spades: '♠', hearts: '♥', diamonds: '♦', clubs: '♣', joker: '🃏' };
@@ -90,7 +102,7 @@ function renderPublicState() {
   if (!publicState) return;
 
   // Deck
-  deckCountEl.textContent = publicState.deckCount;
+  updateDeckDisplay(publicState.deckCount, publicState.deckTopCard);
 
   // Pile
   pileDisplayEl.innerHTML = '';
@@ -367,7 +379,7 @@ const REACTION_EMOJIS = {
 
 function playFartSound() {
   try {
-    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const ctx = getAudioCtx();
     const duration = 0.55;
     const gain = ctx.createGain();
     gain.connect(ctx.destination);
@@ -392,8 +404,72 @@ function playFartSound() {
     noise.connect(filter);
     filter.connect(gain);
     noise.start();
-    setTimeout(() => ctx.close(), (duration + 0.1) * 1000);
   } catch (e) { /* audio not supported */ }
+}
+
+function playBurnSound() {
+  try {
+    const ctx = getAudioCtx();
+    const duration = 1.4;
+    const buf = ctx.createBuffer(1, Math.floor(ctx.sampleRate * duration), ctx.sampleRate);
+    const d = buf.getChannelData(0);
+    for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
+
+    const src = ctx.createBufferSource();
+    src.buffer = buf;
+
+    // Whoosh sweep from high to low
+    const filter = ctx.createBiquadFilter();
+    filter.type = 'bandpass';
+    filter.frequency.setValueAtTime(3500, ctx.currentTime);
+    filter.frequency.exponentialRampToValueAtTime(80, ctx.currentTime + duration);
+    filter.Q.value = 1.2;
+
+    const gain = ctx.createGain();
+    gain.gain.setValueAtTime(0, ctx.currentTime);
+    gain.gain.linearRampToValueAtTime(0.55, ctx.currentTime + 0.06);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + duration);
+
+    src.connect(filter); filter.connect(gain); gain.connect(ctx.destination);
+    src.start();
+  } catch(e) {}
+}
+
+function updateDeckDisplay(count, topCard) {
+  if (count === 0) {
+    deckCardEl.className = 'deck-card-empty';
+    deckCardEl.innerHTML = 'Vacío';
+  } else if (count === 1 && topCard) {
+    // Show the actual last card face-up
+    deckCardEl.className = 'deck-last-card';
+    deckCardEl.innerHTML = '';
+    deckCardEl.appendChild(renderCard(topCard, { extraClass: 'disabled' }));
+  } else {
+    // Normal card-back with stacked shadow proportional to count
+    deckCardEl.className = 'card card-back';
+    deckCardEl.innerHTML = `<span>${count}</span>`;
+    // Stack depth: 0–6 shadow layers based on count (max deck 108)
+    const depth = Math.min(6, Math.ceil(count / 18));
+    const shadows = [];
+    for (let i = 1; i <= depth; i++) {
+      shadows.push(`${i * 2}px ${i * 2}px 0 rgba(15,40,100,0.75), ${i * 2 + 1}px ${i * 2 + 1}px 0 rgba(80,110,170,0.22)`);
+    }
+    deckCardEl.style.boxShadow = shadows.length
+      ? shadows.join(', ')
+      : '2px 4px 10px rgba(0,0,0,0.5)';
+  }
+}
+
+function showBurnAnimation() {
+  const overlay = document.getElementById('burn-overlay');
+  if (!overlay) return;
+  overlay.classList.remove('hidden');
+  // Re-trigger CSS animation
+  const content = overlay.querySelector('.burn-content');
+  content.style.animation = 'none';
+  void content.offsetHeight; // reflow
+  content.style.animation = '';
+  setTimeout(() => overlay.classList.add('hidden'), 2600);
 }
 
 function showFloatingReaction(emoji, fromName) {
@@ -585,6 +661,8 @@ socket.on('pile-burned', ({ by }) => {
   const p = publicState?.players.find(x => x.id === by);
   addLog(`🔥 ¡${p?.name || '?'} quemó la caca!`, 'important');
   if (by === socket.id || by === myId) Analytics.trackPileBurned('ten_or_four');
+  showBurnAnimation();
+  playBurnSound();
 });
 
 socket.on('player-left', ({ name }) => {

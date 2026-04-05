@@ -361,6 +361,7 @@ function getPublicState(state) {
     currentPlayerIdx: state.currentPlayerIdx,
     direction: state.direction,
     deckCount: state.deck.length,
+    deckTopCard: state.deck.length === 1 ? state.deck[state.deck.length - 1] : null,
     discardPile: state.discardPile,
     topCard: state.discardPile.length > 0 ? state.discardPile[state.discardPile.length - 1] : null,
     mustLeOrEq7: state.mustLeOrEq7,
