@@ -39,6 +39,19 @@ const deckCountEl = document.getElementById('deck-count');
 const turnIndicatorEl = document.getElementById('turn-indicator');
 const gameLogEl = document.getElementById('game-log');
 
+// ===== AUDIO CONTEXT (shared, resumed on first interaction) =====
+let _audioCtx = null;
+function getAudioCtx() {
+  if (!_audioCtx) {
+    try { _audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch(e) { return null; }
+  }
+  if (_audioCtx.state === 'suspended') _audioCtx.resume();
+  return _audioCtx;
+}
+// Unlock audio context on any user interaction
+document.addEventListener('click', () => getAudioCtx(), { capture: true });
+document.addEventListener('touchstart', () => getAudioCtx(), { capture: true });
+
 // Card helpers
 const SUITS_SYMBOL = { spades: '♠', hearts: '♥', diamonds: '♦', clubs: '♣', joker: '🃏' };
 const VALUE_LABEL = { 0: 'Joker', 2: '2', 3: '3', 4: '4', 5: '5', 6: '6', 7: '7', 8: '8', 9: '9', 10: '10', 11: 'J', 12: 'Q', 13: 'K', 14: 'A' };
@@ -86,11 +99,39 @@ function addLog(msg, type = '') {
 
 // ===== RENDER =====
 
+function updateDeckVisual(count) {
+  const deckEl = document.getElementById('deck-card');
+  if (!deckEl) return;
+  let size;
+  if (count === 0)      size = 'empty';
+  else if (count === 1) size = 'last';
+  else if (count <= 6)  size = 'xs';
+  else if (count <= 20) size = 'sm';
+  else if (count <= 45) size = 'md';
+  else if (count <= 70) size = 'lg';
+  else                  size = 'xl';
+  deckEl.dataset.size = size;
+
+  // Last-card badge
+  let badge = deckEl.querySelector('.deck-last-badge');
+  if (count === 1) {
+    if (!badge) {
+      badge = document.createElement('div');
+      badge.className = 'deck-last-badge';
+      badge.textContent = '¡ÚLTIMA!';
+      deckEl.appendChild(badge);
+    }
+  } else if (badge) {
+    badge.remove();
+  }
+}
+
 function renderPublicState() {
   if (!publicState) return;
 
   // Deck
   deckCountEl.textContent = publicState.deckCount;
+  updateDeckVisual(publicState.deckCount);
 
   // Pile
   pileDisplayEl.innerHTML = '';
@@ -367,7 +408,8 @@ const REACTION_EMOJIS = {
 
 function playFartSound() {
   try {
-    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const ctx = getAudioCtx();
+    if (!ctx) return;
     const duration = 0.55;
     const gain = ctx.createGain();
     gain.connect(ctx.destination);
@@ -392,8 +434,71 @@ function playFartSound() {
     noise.connect(filter);
     filter.connect(gain);
     noise.start();
-    setTimeout(() => ctx.close(), (duration + 0.1) * 1000);
   } catch (e) { /* audio not supported */ }
+}
+
+function playBurnSound() {
+  try {
+    const ctx = getAudioCtx();
+    if (!ctx) return;
+    const duration = 1.4;
+
+    // Big juicy fart + crackle explosion sound
+    const bufferSize = Math.floor(ctx.sampleRate * duration);
+    const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+    const data = buffer.getChannelData(0);
+    for (let i = 0; i < bufferSize; i++) {
+      const t = i / bufferSize;
+      data[i] = (Math.random() * 2 - 1) * Math.pow(1 - t, 0.35);
+    }
+
+    const noise = ctx.createBufferSource();
+    noise.buffer = buffer;
+
+    const filter = ctx.createBiquadFilter();
+    filter.type = 'bandpass';
+    filter.frequency.setValueAtTime(350, ctx.currentTime);
+    filter.frequency.exponentialRampToValueAtTime(60, ctx.currentTime + duration);
+    filter.Q.setValueAtTime(5, ctx.currentTime);
+
+    const gain = ctx.createGain();
+    gain.gain.setValueAtTime(0.6, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + duration);
+
+    // Second layer: sharp pop at start
+    const popBuf = ctx.createBuffer(1, Math.floor(ctx.sampleRate * 0.08), ctx.sampleRate);
+    const popData = popBuf.getChannelData(0);
+    for (let i = 0; i < popData.length; i++) {
+      popData[i] = (Math.random() * 2 - 1) * (1 - i / popData.length);
+    }
+    const pop = ctx.createBufferSource();
+    pop.buffer = popBuf;
+    const popGain = ctx.createGain();
+    popGain.gain.setValueAtTime(0.8, ctx.currentTime);
+    popGain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.08);
+    pop.connect(popGain);
+    popGain.connect(ctx.destination);
+    pop.start();
+
+    noise.connect(filter);
+    filter.connect(gain);
+    gain.connect(ctx.destination);
+    noise.start();
+  } catch(e) { /* audio not supported */ }
+}
+
+function showCacaExplosion(byName) {
+  playBurnSound();
+  const el = document.getElementById('caca-explosion');
+  const byEl = document.getElementById('caca-explosion-by');
+  if (byEl) byEl.textContent = byName ? `por ${byName}` : '';
+  el.classList.remove('hidden');
+  // Re-trigger animation by cloning the inner element
+  const inner = el.querySelector('.caca-explosion-inner');
+  const clone = inner.cloneNode(true);
+  inner.replaceWith(clone);
+  clearTimeout(el._hideTimer);
+  el._hideTimer = setTimeout(() => el.classList.add('hidden'), 2800);
 }
 
 function showFloatingReaction(emoji, fromName) {
@@ -583,7 +688,9 @@ socket.on('facedown-flipped', ({ playerId, card, success }) => {
 
 socket.on('pile-burned', ({ by }) => {
   const p = publicState?.players.find(x => x.id === by);
-  addLog(`🔥 ¡${p?.name || '?'} quemó la caca!`, 'important');
+  const name = p?.name || '?';
+  addLog(`🔥 ¡${name} quemó la caca!`, 'important');
+  showCacaExplosion(name);
   if (by === socket.id || by === myId) Analytics.trackPileBurned('ten_or_four');
 });
 

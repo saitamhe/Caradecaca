@@ -159,6 +159,96 @@ body {
   border: 3px solid #8a9ec0; display: flex; align-items: center; justify-content: center;
   color: #fff; font-size: 1.2rem; font-weight: 700; cursor: default;
   box-shadow: 2px 4px 10px rgba(0,0,0,0.5);
+  position: relative; transition: box-shadow 0.4s, opacity 0.4s;
+}
+
+/* Deck stacking effect — shadows simulate stacked cards */
+.card-back[data-size="xl"] {
+  box-shadow:
+    3px 3px 0 #1e40a0, 6px 6px 0 #1a3a8a,
+    9px 9px 0 #1e40a0, 12px 12px 0 #1a3a8a,
+    14px 18px 10px rgba(0,0,0,0.55);
+}
+.card-back[data-size="lg"] {
+  box-shadow:
+    3px 3px 0 #1e40a0, 6px 6px 0 #1a3a8a,
+    8px 8px 0 #1e40a0,
+    10px 14px 8px rgba(0,0,0,0.5);
+}
+.card-back[data-size="md"] {
+  box-shadow:
+    3px 3px 0 #1e40a0, 6px 6px 0 #1a3a8a,
+    8px 12px 6px rgba(0,0,0,0.45);
+}
+.card-back[data-size="sm"] {
+  box-shadow:
+    3px 3px 0 #1e40a0,
+    5px 8px 5px rgba(0,0,0,0.4);
+}
+.card-back[data-size="xs"] {
+  box-shadow: 2px 4px 6px rgba(0,0,0,0.4);
+  opacity: 0.85;
+}
+.card-back[data-size="last"] {
+  box-shadow: 0 0 0 3px #f0c040, 0 0 16px rgba(240,192,64,0.8), 2px 4px 8px rgba(0,0,0,0.5);
+  animation: last-card-pulse 1s infinite alternate;
+}
+@keyframes last-card-pulse {
+  from { box-shadow: 0 0 0 3px #f0c040, 0 0 10px rgba(240,192,64,0.6); }
+  to   { box-shadow: 0 0 0 3px #f0c040, 0 0 24px rgba(240,192,64,1); }
+}
+.card-back[data-size="empty"] {
+  background: transparent;
+  border: 2px dashed rgba(255,255,255,0.2);
+  box-shadow: none; opacity: 0.35;
+}
+.deck-count {
+  font-size: 1.3rem; font-weight: 900;
+}
+.deck-last-badge {
+  position: absolute; bottom: -18px; left: 50%; transform: translateX(-50%);
+  background: var(--gold); color: #222; font-size: 0.6rem; font-weight: 800;
+  padding: 2px 6px; border-radius: 8px; white-space: nowrap; letter-spacing: 0.5px;
+}
+
+/* CACA QUEMADA EXPLOSION */
+.caca-explosion {
+  position: fixed; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  z-index: 500; pointer-events: none;
+}
+.caca-explosion-inner {
+  display: flex; flex-direction: column; align-items: center; gap: 8px;
+  animation: caca-burst 2.8s ease-out forwards;
+  filter: drop-shadow(0 0 30px rgba(255,80,0,0.9));
+}
+.caca-explosion-emoji {
+  font-size: 7rem; line-height: 1;
+  animation: caca-spin 2.8s ease-out forwards;
+}
+.caca-explosion-text {
+  font-size: 2.6rem; font-weight: 900; color: #ff6b00;
+  text-shadow: 0 0 20px rgba(255,107,0,0.9), 0 2px 8px rgba(0,0,0,0.8);
+  letter-spacing: 2px;
+}
+.caca-explosion-by {
+  font-size: 1.1rem; color: rgba(255,200,100,0.9); font-weight: 600;
+  text-shadow: 0 1px 6px rgba(0,0,0,0.8);
+}
+@keyframes caca-burst {
+  0%   { transform: scale(0) rotate(-20deg); opacity: 0; }
+  12%  { transform: scale(1.5) rotate(10deg); opacity: 1; }
+  22%  { transform: scale(1.1) rotate(-4deg); }
+  30%  { transform: scale(1.2) rotate(0deg); }
+  65%  { transform: scale(1.15); opacity: 1; }
+  100% { transform: scale(0.4) translateY(-60px); opacity: 0; }
+}
+@keyframes caca-spin {
+  0%  { transform: rotate(-30deg) scale(0.5); }
+  15% { transform: rotate(20deg) scale(1.6); }
+  30% { transform: rotate(-8deg) scale(1); }
+  60% { transform: rotate(5deg) scale(1.1); }
+  100%{ transform: rotate(0deg) scale(0.3); }
 }
 
 /* PILE */
